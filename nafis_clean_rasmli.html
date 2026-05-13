@@ -1,0 +1,620 @@
+
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Rubik:wght@400;500;600;700&display=swap');
+  :root{--dark:#0F1923;--navy:#1A2E3F;--blue:#1A73E8;--accent:#00C9A7;--red:#FF4757;--white:#FFFFFF;--gray:#8897A6;--card:#1E2E3E}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Rubik',sans-serif;background:var(--dark);color:var(--white);min-height:100vh;overflow-x:hidden}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;background:var(--navy);border-bottom:3px solid var(--accent);position:sticky;top:0;z-index:100}
+  .logo{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--white)}
+  .logo span{color:var(--accent)}
+  .topbar-right{display:flex;align-items:center;gap:14px}
+  .cart-btn{background:var(--blue);color:white;border:none;border-radius:10px;padding:9px 18px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:transform .15s}
+  .cart-btn:active{transform:scale(.95)}
+  .cart-badge{background:var(--red);color:white;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+  .cart-total-top{font-size:12px;color:var(--accent);font-weight:700;white-space:nowrap}
+  .tabs{display:flex;gap:8px;padding:12px 20px;background:var(--navy);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{background:var(--card);border:2px solid transparent;color:var(--gray);border-radius:30px;padding:8px 18px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;white-space:nowrap;transition:all .2s;flex-shrink:0}
+  .tab.active{background:var(--accent);color:var(--dark);border-color:var(--accent)}
+  .search-bar{padding:10px 20px;background:var(--dark)}
+  .search-bar input{width:100%;background:var(--card);border:2px solid #2A3F54;border-radius:10px;padding:10px 16px;color:white;font-family:'Rubik',sans-serif;font-size:14px;outline:none}
+  .search-bar input:focus{border-color:var(--accent)}
+  .search-bar input::placeholder{color:var(--gray)}
+  .grid-wrap{padding:12px 20px 100px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px}
+  .card{background:var(--card);border:2px solid #2A3F54;border-radius:14px;padding:14px 12px 12px;cursor:pointer;transition:border-color .2s,transform .15s,box-shadow .2s;position:relative;overflow:hidden}
+  .card:active{transform:scale(.97)}
+  .card.selected{border-color:var(--accent);box-shadow:0 0 14px rgba(0,201,167,.25)}
+  .card-top-accent{position:absolute;top:0;left:0;right:0;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .25s}
+  .card.selected .card-top-accent{transform:scaleX(1)}
+  .card-emoji{font-size:32px;margin-bottom:6px;display:block;text-align:center}
+
+  .card-img{width:100%;height:100px;object-fit:contain;border-radius:8px;margin-bottom:6px;background:#131E29;display:block}
+  .card-img.loading{background: linear-gradient(90deg,#1a2a3a 25%,#2A3F54 50%,#1a2a3a 75%);background-size:200% 100%;animation:shimmer 1.5s infinite}
+  @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+
+  .card-name{font-weight:700;font-size:13px;color:var(--white);line-height:1.3;margin-bottom:8px;min-height:34px}
+  .card-price{color:var(--accent);font-family:'Nunito',sans-serif;font-weight:900;font-size:16px}
+  .card-price small{font-size:10px;color:var(--gray);font-weight:600}
+  .qty-row{display:flex;align-items:center;gap:6px;margin-top:9px}
+  .qty-btn{width:28px;height:28px;border-radius:7px;border:none;cursor:pointer;font-size:16px;font-weight:900;line-height:1;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+  .qty-btn:active{transform:scale(.85)}
+  .qty-minus{background:#2A3F54;color:white}
+  .qty-plus{background:var(--accent);color:var(--dark)}
+  .qty-val{flex:1;text-align:center;background:#131E29;border:none;color:white;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;border-radius:6px;padding:3px 0;outline:none;width:100%}
+  .add-btn{width:100%;margin-top:8px;background:var(--blue);color:white;border:none;border-radius:8px;padding:8px;font-family:'Nunito',sans-serif;font-weight:800;font-size:12px;cursor:pointer;transition:background .2s,transform .1s}
+  .add-btn:active{transform:scale(.97)}
+  .add-btn.added{background:var(--accent);color:var(--dark)}
+  .cart-overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,.65);backdrop-filter:blur(4px)}
+  .cart-overlay.open{display:block}
+  .cart-panel{position:fixed;right:0;top:0;bottom:0;width:min(420px,100vw);background:var(--navy);border-left:3px solid var(--accent);display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);z-index:201}
+  .cart-overlay.open .cart-panel{transform:translateX(0)}
+  .cart-header{padding:16px 18px;border-bottom:2px solid #2A3F54;display:flex;align-items:center;justify-content:space-between;background:var(--dark)}
+  .cart-header h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px}
+  .close-cart{width:34px;height:34px;border-radius:8px;background:#2A3F54;border:none;color:white;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .mijoz-row{padding:12px 18px;border-bottom:1px solid #2A3F54;display:flex;flex-direction:column;gap:8px}
+  .mijoz-row input{background:#131E29;border:2px solid #2A3F54;border-radius:8px;padding:8px 12px;color:white;font-family:'Rubik',sans-serif;font-size:13px;outline:none;width:100%}
+  .mijoz-row input:focus{border-color:var(--accent)}
+  .cart-items{flex:1;overflow-y:auto;padding:12px 18px}
+  .cart-items::-webkit-scrollbar{width:5px}
+  .cart-items::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+  .cart-item{background:var(--card);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;border:1px solid #2A3F54;animation:slideIn .2s ease}
+  @keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+  .ci-emoji{font-size:24px;flex-shrink:0}
+  .ci-info{flex:1;min-width:0}
+  .ci-name{font-size:12px;font-weight:600;color:var(--white);margin-bottom:2px}
+  .ci-price-row{display:flex;align-items:center;gap:6px}
+  .ci-qty-wrap{display:flex;align-items:center;gap:4px}
+  .ci-qbtn{width:22px;height:22px;border-radius:5px;border:none;cursor:pointer;font-weight:900;font-size:13px;display:flex;align-items:center;justify-content:center}
+  .ci-qbtn.minus{background:#2A3F54;color:white}
+  .ci-qbtn.plus{background:var(--accent);color:var(--dark)}
+  .ci-qty{font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;width:24px;text-align:center}
+  .ci-subtotal{font-family:'Nunito',sans-serif;font-weight:900;font-size:13px;color:var(--accent)}
+  .ci-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;padding:2px;flex-shrink:0}
+  .cart-empty{text-align:center;padding:40px 20px;color:var(--gray)}
+  .cart-empty .big{font-size:52px;margin-bottom:12px}
+  .cart-footer{padding:14px 18px;border-top:2px solid #2A3F54;background:var(--dark)}
+  .total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+  .total-row span{font-size:14px;color:var(--gray)}
+  .total-sum{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--accent)}
+  .btn-row{display:flex;gap:8px}
+  .btn-clear{flex:0 0 auto;padding:12px 14px;border-radius:10px;background:#2A3F54;color:white;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:800;font-size:13px}
+  .btn-tg{flex:1;padding:12px;border-radius:10px;background:#229ED9;color:white;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;display:flex;align-items:center;justify-content:center;gap:8px;transition:transform .1s}
+  .btn-tg:active{transform:scale(.97)}
+  .btn-tg:disabled{opacity:0.6;cursor:not-allowed}
+  .sending-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.8);align-items:center;justify-content:center;flex-direction:column;gap:16px}
+  .sending-overlay.open{display:flex}
+  .spinner{width:48px;height:48px;border:4px solid #2A3F54;border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .sending-text{font-family:'Nunito',sans-serif;font-weight:800;font-size:16px;color:white}
+  .success-overlay{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.85);align-items:center;justify-content:center}
+  .success-overlay.open{display:flex}
+  .success-box{background:var(--navy);border-radius:20px;border:2px solid var(--accent);padding:32px 28px;text-align:center;max-width:320px;animation:popIn .3s cubic-bezier(.34,1.56,.64,1)}
+  @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+  .success-icon{font-size:64px;margin-bottom:12px}
+  .success-title{font-family:'Nunito',sans-serif;font-weight:900;font-size:22px;color:var(--accent);margin-bottom:8px}
+  .success-sub{font-size:14px;color:var(--gray);line-height:1.5;margin-bottom:20px}
+  .success-btn{background:var(--accent);color:var(--dark);border:none;border-radius:10px;padding:12px 28px;font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;cursor:pointer;width:100%}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--red);color:white;padding:10px 22px;border-radius:30px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:500;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .input-label{font-size:11px;color:var(--gray);font-weight:600;margin-bottom:2px}
+
+  /* ADMIN */
+  .admin-btn{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:#2A3F54;border:2px solid var(--accent);color:white;font-size:20px;cursor:pointer;z-index:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .admin-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+  .admin-overlay.open{display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px}
+  .admin-panel{background:var(--navy);border-radius:16px;border:2px solid var(--accent);width:100%;max-width:600px;margin:auto}
+  .admin-header{padding:16px 20px;border-bottom:2px solid #2A3F54;display:flex;align-items:center;justify-content:space-between}
+  .admin-header h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;color:var(--accent)}
+  .admin-close{width:34px;height:34px;border-radius:8px;background:#2A3F54;border:none;color:white;font-size:18px;cursor:pointer}
+  .admin-login{padding:30px 20px;display:flex;flex-direction:column;gap:12px}
+  .admin-login input{background:#131E29;border:2px solid #2A3F54;border-radius:8px;padding:12px;color:white;font-size:15px;outline:none;width:100%}
+  .admin-login input:focus{border-color:var(--accent)}
+  .admin-login-btn{background:var(--accent);color:var(--dark);border:none;border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;cursor:pointer;width:100%}
+  .admin-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+  .admin-add-btn{background:var(--blue);color:white;border:none;border-radius:10px;padding:10px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;width:100%}
+  .admin-product{background:var(--card);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;border:1px solid #2A3F54}
+  .admin-product img{width:48px;height:48px;object-fit:contain;border-radius:6px;background:#131E29;flex-shrink:0}
+  .admin-product-info{flex:1;min-width:0}
+  .admin-product-name{font-size:13px;font-weight:700;color:white;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin-product-price{font-size:12px;color:var(--accent);font-weight:700}
+  .admin-edit-btn{background:var(--blue);color:white;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+  .admin-del-btn{background:var(--red);color:white;border:none;border-radius:7px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+  .admin-form-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:20px}
+  .admin-form-overlay.open{display:flex}
+  .admin-form{background:var(--navy);border-radius:16px;border:2px solid var(--accent);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px}
+  .admin-form h3{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;color:var(--accent)}
+  .admin-form input,.admin-form select{background:#131E29;border:2px solid #2A3F54;border-radius:8px;padding:10px 12px;color:white;font-size:14px;outline:none;width:100%}
+  .admin-form input:focus,.admin-form select:focus{border-color:var(--accent)}
+  .admin-form select option{background:var(--navy)}
+  .admin-form-label{font-size:11px;color:var(--gray);font-weight:600;margin-bottom:-8px}
+  .admin-form-btns{display:flex;gap:8px}
+  .admin-save-btn{flex:1;background:var(--accent);color:var(--dark);border:none;border-radius:10px;padding:11px;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer}
+  .admin-cancel-btn{background:#2A3F54;color:white;border:none;border-radius:10px;padding:11px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer}
+  .admin-img-preview{width:80px;height:80px;object-fit:contain;border-radius:8px;background:#131E29;border:2px solid #2A3F54}
+
+  /* ADMIN */
+  .admin-btn{position:fixed;bottom:20px;right:20px;width:44px;height:44px;border-radius:50%;background:#2A3F54;border:2px solid var(--accent);color:white;font-size:20px;cursor:pointer;z-index:300;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+  .admin-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.7);backdrop-filter:blur(4px)}
+  .admin-overlay.open{display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px}
+  .admin-panel{background:var(--navy);border-radius:16px;border:2px solid var(--accent);width:100%;max-width:600px;margin:auto}
+  .admin-header{padding:16px 20px;border-bottom:2px solid #2A3F54;display:flex;align-items:center;justify-content:space-between}
+  .admin-header h2{font-family:'Nunito',sans-serif;font-weight:900;font-size:18px;color:var(--accent)}
+  .admin-close{width:34px;height:34px;border-radius:8px;background:#2A3F54;border:none;color:white;font-size:18px;cursor:pointer}
+  .admin-login{padding:30px 20px;display:flex;flex-direction:column;gap:12px}
+  .admin-login input{background:#131E29;border:2px solid #2A3F54;border-radius:8px;padding:12px;color:white;font-size:15px;outline:none;width:100%}
+  .admin-login input:focus{border-color:var(--accent)}
+  .admin-login-btn{background:var(--accent);color:var(--dark);border:none;border-radius:10px;padding:12px;font-family:'Nunito',sans-serif;font-weight:900;font-size:15px;cursor:pointer;width:100%}
+  .admin-body{padding:16px 20px;display:flex;flex-direction:column;gap:12px}
+  .admin-add-btn{background:var(--blue);color:white;border:none;border-radius:10px;padding:10px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer;width:100%}
+  .admin-product{background:var(--card);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px;border:1px solid #2A3F54}
+  .admin-product img{width:48px;height:48px;object-fit:contain;border-radius:6px;background:#131E29;flex-shrink:0}
+  .admin-product-info{flex:1;min-width:0}
+  .admin-product-name{font-size:13px;font-weight:700;color:white;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .admin-product-price{font-size:12px;color:var(--accent);font-weight:700}
+  .admin-edit-btn{background:var(--blue);color:white;border:none;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+  .admin-del-btn{background:var(--red);color:white;border:none;border-radius:7px;padding:6px 10px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
+  .admin-form-overlay{display:none;position:fixed;inset:0;z-index:600;background:rgba(0,0,0,.8);align-items:center;justify-content:center;padding:20px}
+  .admin-form-overlay.open{display:flex}
+  .admin-form{background:var(--navy);border-radius:16px;border:2px solid var(--accent);padding:20px;width:100%;max-width:400px;display:flex;flex-direction:column;gap:12px}
+  .admin-form h3{font-family:'Nunito',sans-serif;font-weight:900;font-size:16px;color:var(--accent)}
+  .admin-form input,.admin-form select{background:#131E29;border:2px solid #2A3F54;border-radius:8px;padding:10px 12px;color:white;font-size:14px;outline:none;width:100%}
+  .admin-form input:focus,.admin-form select:focus{border-color:var(--accent)}
+  .admin-form select option{background:var(--navy)}
+  .admin-form-label{font-size:11px;color:var(--gray);font-weight:600;margin-bottom:-8px}
+  .admin-form-btns{display:flex;gap:8px}
+  .admin-save-btn{flex:1;background:var(--accent);color:var(--dark);border:none;border-radius:10px;padding:11px;font-family:'Nunito',sans-serif;font-weight:900;font-size:14px;cursor:pointer}
+  .admin-cancel-btn{background:#2A3F54;color:white;border:none;border-radius:10px;padding:11px 16px;font-family:'Nunito',sans-serif;font-weight:800;font-size:14px;cursor:pointer}
+  .admin-img-preview{width:80px;height:80px;object-fit:contain;border-radius:8px;background:#131E29;border:2px solid #2A3F54}
+
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">NAFIS <span>CLEAN</span></div>
+  <div class="topbar-right">
+    <div class="cart-total-top" id="topTotal">0 so'm</div>
+    <button class="cart-btn" onclick="openCart()">🛒 Korzinka<div class="cart-badge" id="cartBadge">0</div></button>
+  </div>
+</div>
+<div class="tabs">
+  <div class="tab active" onclick="filterCat('all',this)">🌟 Hammasi</div>
+  <div class="tab" onclick="filterCat('kimyo',this)">🧴 Kimyoviy</div>
+  <div class="tab" onclick="filterCat('latta',this)">🧹 Pol Latta</div>
+  <div class="tab" onclick="filterCat('bumaga',this)">🧻 Bumaga</div>
+  <div class="tab" onclick="filterCat('xushbo',this)">🌸 Xushbo'y</div>
+  <div class="tab" onclick="filterCat('qolqop',this)">🧤 Qo'lqop</div>
+</div>
+<div class="search-bar"><input type="text" placeholder="🔍  Mahsulot qidirish..." oninput="searchProducts(this.value)"></div>
+<div class="grid-wrap" id="gridWrap"></div>
+<div class="toast" id="toast"></div>
+
+<!-- CART -->
+<div class="cart-overlay" id="cartOverlay" onclick="closeCartOnBg(event)">
+  <div class="cart-panel">
+    <div class="cart-header"><h2>🛒 Korzinka</h2><button class="close-cart" onclick="closeCart()">✕</button></div>
+    <div class="mijoz-row">
+      <div>
+        <div class="input-label">👤 Mijoz ismi</div>
+        <input type="text" id="mijozName" placeholder="Ismi...">
+      </div>
+      <div>
+        <div class="input-label">📞 Telefon raqam</div>
+        <input type="tel" id="mijozPhone" placeholder="+998 90 000 00 00">
+      </div>
+      <div>
+        <div class="input-label">📍 Manzil (ixtiyoriy)</div>
+        <input type="text" id="mijozAddress" placeholder="Ko'cha, uy...">
+      </div>
+    </div>
+    <div class="cart-items" id="cartItems"><div class="cart-empty"><div class="big">🛒</div>Korzinka bo'sh</div></div>
+    <div class="cart-footer">
+      <div class="total-row"><span>Jami summa:</span><div class="total-sum" id="cartTotal">0 so'm</div></div>
+      <div class="btn-row">
+        <button class="btn-clear" onclick="clearCart()">🗑</button>
+        <button class="btn-tg" id="sendBtn" onclick="sendToTelegram()">✈️ Telegramga yuborish</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SENDING -->
+<div class="sending-overlay" id="sendingOverlay">
+  <div class="spinner"></div>
+  <div class="sending-text">Telegram ga yuborilmoqda...</div>
+</div>
+
+<!-- SUCCESS -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-box">
+    <div class="success-icon">✅</div>
+    <div class="success-title">Zakaz yuborildi!</div>
+    <div class="success-sub" id="successMsg">Buyurtma Telegramga muvaffaqiyatli yuborildi!</div>
+    <button class="success-btn" onclick="afterSuccess()">🎉 Yangi zakaz</button>
+  </div>
+</div>
+
+<script>
+const BOT_TOKEN = '7598061066:AAG7Jd0IgiPGZjAGiu6Gq97azmG_gzyphW0';
+const CHAT_ID = '333844532';
+
+const products=[
+  {id:1,cat:'kimyo',name:'Gras gaz (pushti)',price:32000,img:'https://i.ibb.co/gZw9R6NM/6234lnqce43varrz6kd1nnmft3qm923e.jpg',emoji:'🧴'},
+  {id:2,cat:'kimyo',name:'Grass gaz qora',price:32000,img:'https://i.ibb.co/dJmLwwZX/Sredstvo-chistyashchee-AZELIT-PRO-Antizhir-dlya-kukhni-600ml-126091kupit-v-internet-magazine-APlayn.jpg',emoji:'🧴'},
+  {id:3,cat:'kimyo',name:'Gras gold',price:30000,img:'https://i.ibb.co/1tgNsrH7/263-1200x900.webp',emoji:'✨'},
+  {id:4,cat:'kimyo',name:'Tala gel 1 KG',price:23000,img:'https://i.ibb.co/FbGWHdmv/images-2.jpg',emoji:'🪣'},
+  {id:5,cat:'kimyo',name:'Tala gel KG (katta)',price:95000,img:'https://i.ibb.co/FbGWHdmv/images-2.jpg',emoji:'🪣'},
+  {id:6,cat:'kimyo',name:'Pol uchun gel 3L',price:50000,img:'https://i.ibb.co/DPQgSsyZ/Gemini-Generated-Image-tm8zkatm8zkatm8z.png',emoji:'🧹'},
+  {id:7,cat:'kimyo',name:"Suyuq so'vin (Milana)",price:96000,img:'https://i.ibb.co/fGVj8L28/photo-1-2026-05-11-13-37-22.jpg',emoji:'🫧'},
+  {id:8,cat:'kimyo',name:'Krot (trubalarga)',price:18000,img:'https://i.ibb.co/4nrH3P74/Gemini-Generated-Image-i2g1xii2g1xii2g1.png',emoji:'🔧'},
+  {id:9,cat:'kimyo',name:"Oq kir so'vin katta",price:25000,img:'https://i.ibb.co/21svnKjh/6817ed74-76c9-4fc9-b0b5-2e0923860fb5.jpg',emoji:'🧼'},
+  {id:10,cat:'kimyo',name:'Grass azilit qozon',price:24000,img:'https://i.ibb.co/Sw3dDXxN/32a89e9a-d05e-43a2-8ed5-598d540fffe9.jpg',emoji:'🍳'},
+  {id:11,cat:'kimyo',name:'Grass azilit gaz',price:24000,img:'https://i.ibb.co/rfx0gnms/orig.webp',emoji:'🔥'},
+  {id:12,cat:'kimyo',name:'Domestos 950ml',price:23000,img:'https://i.ibb.co/k2ZYNJh7/773f1ed2-a664-448b-a943-a9ff1b72a94e.jpg',emoji:'🚽'},
+  {id:13,cat:'kimyo',name:'Domestos 1L',price:26000,img:'https://i.ibb.co/k2ZYNJh7/773f1ed2-a664-448b-a943-a9ff1b72a94e.jpg',emoji:'🚽'},
+  {id:14,cat:'kimyo',name:'Domestos 1.25L',price:32000,img:'https://i.ibb.co/k2ZYNJh7/773f1ed2-a664-448b-a943-a9ff1b72a94e.jpg',emoji:'🚽'},
+  {id:15,cat:'kimyo',name:'Bumaga big Rulon 226',price:17000,img:'https://i.ibb.co/tps9hy9P/Gemini-Generated-Image-bp6ew9bp6ew9bp6e-1.png',emoji:'🧻'},
+  {id:16,cat:'kimyo',name:'RULON ECO',price:16000,img:'https://i.ibb.co/xKxgnbWd/Gemini-Generated-Image-4zslu34zslu34zsl-1.png',emoji:'🧻'},
+  {id:17,cat:'latta',name:'Pollata mikor 85/70',price:23000,img:'https://i.ibb.co/N6HK0J85/bd47c0c4-cfe8-4a18-b94a-9c694107cae4.jpg',emoji:'🧹'},
+  {id:18,cat:'latta',name:'Pollata mikor 60/40',price:18000,img:'https://i.ibb.co/N6HK0J85/bd47c0c4-cfe8-4a18-b94a-9c694107cae4.jpg',emoji:'🧹'},
+  {id:19,cat:'latta',name:'Pollata mikor 1m',price:30000,img:'https://i.ibb.co/5XyYQFrp/e34bb647-6128-4606-985c-4b3373d080eb.jpg',emoji:'🧹'},
+  {id:20,cat:'latta',name:"Ollatta arzon 1M",price:23000,img:'https://i.ibb.co/3xsfNVJ/c50e35f1-263b-4fb8-a0fa-55c3a7e093fe.jpg',emoji:'🧺'},
+  {id:21,cat:'latta',name:'Pollatta arzon 50sm',price:14500,img:'https://i.ibb.co/3xsfNVJ/c50e35f1-263b-4fb8-a0fa-55c3a7e093fe.jpg',emoji:'🧺'},
+  {id:22,cat:'latta',name:'Momiq sifat latta',price:18000,img:'https://i.ibb.co/zh83S3gY/098595cf-c860-4c93-983d-d7e6568f7115.jpg',emoji:'🪣'},
+  {id:23,cat:'latta',name:"Yangi yo'l so'vin",price:5500,img:'https://i.ibb.co/5Q76NGT/f0c8927c-eb60-469f-b548-b70763c24437.jpg',emoji:'🧼'},
+  {id:24,cat:'latta',name:"Oq kir so'vin kichik",price:23000,img:'https://i.ibb.co/21svnKjh/6817ed74-76c9-4fc9-b0b5-2e0923860fb5.jpg',emoji:'🧼'},
+  {id:25,cat:'latta',name:"Oq kir so'vin katta",price:25000,img:'https://i.ibb.co/21svnKjh/6817ed74-76c9-4fc9-b0b5-2e0923860fb5.jpg',emoji:'🧼'},
+  {id:26,cat:'xushbo',name:'Air time (spray)',price:13500,img:'https://i.ibb.co/sdhy2wsJ/3e9ace73-d956-4ef7-a802-45bd9ceb64be.jpg',emoji:'🌸'},
+  {id:27,cat:'xushbo',name:'Sunny day (spray)',price:18500,img:'https://i.ibb.co/qLp0PHHp/images.jpg',emoji:'🌞'},
+  {id:28,cat:'xushbo',name:'Glade',price:38000,img:'https://i.ibb.co/RpRqb21g/download.jpg',emoji:'🌺'},
+  {id:29,cat:'xushbo',name:'AIR weik (zapsalka)',price:55000,img:'https://i.ibb.co/CpWCNnTf/images-1.jpg',emoji:'💨'},
+  {id:30,cat:'xushbo',name:'Chopil asvijitil (arzoni)',price:55000,img:'https://i.ibb.co/XgXFmW9/aromadiffuzor-loreva-lavanda-55ml-86342-0.jpg',emoji:'🪷'},
+  {id:31,cat:'xushbo',name:'Chopil asvijitil (qimmati)',price:85000,img:'https://i.ibb.co/XgXFmW9/aromadiffuzor-loreva-lavanda-55ml-86342-0.jpg',emoji:'💐'},
+  {id:32,cat:'bumaga',name:'Bumaga 6 ta',price:15000,img:'https://i.ibb.co/pjyXqDXY/Gemini-Generated-Image-k0hb6dk0hb6dk0hb-2-1.png',emoji:'🧻'},
+  {id:33,cat:'bumaga',name:'Bumaga 8 ta',price:18000,img:'https://i.ibb.co/JwNjDVW1/Gemini-Generated-Image-z7xslgz7xslgz7xs-1.png',emoji:'🧻'},
+  {id:34,cat:'bumaga',name:'Bumaga 10 ta',price:24000,img:'https://i.ibb.co/LhbhmFKy/Gemini-Generated-Image-32ubfr32ubfr32ub-1.png',emoji:'🧻'},
+  {id:35,cat:'bumaga',name:'Bumaga big Rulon 226',price:23000,img:'https://i.ibb.co/tps9hy9P/Gemini-Generated-Image-bp6ew9bp6ew9bp6e-1.png',emoji:'🧻'},
+  {id:36,cat:'bumaga',name:'Bumaga big Rulon 160',price:14500,img:'https://i.ibb.co/spS7JNG6/Gemini-Generated-Image-1e4qj91e4qj91e4q-1.png',emoji:'🧻'},
+  {id:37,cat:'bumaga',name:'Salfetka Z (180 ta)',price:13000,img:'https://i.ibb.co/GvK7QbJT/Gemini-Generated-Image-bys6hibys6hibys6-1.png',emoji:'📋'},
+  {id:38,cat:'bumaga',name:'Salfetka Z (150 ta)',price:12000,img:'https://i.ibb.co/GvK7QbJT/Gemini-Generated-Image-bys6hibys6hibys6-1.png',emoji:'📋'},
+  {id:39,cat:'bumaga',name:'Rulon 2 tali',price:15000,img:'https://i.ibb.co/gbYpMKQp/Gemini-Generated-Image-bl2f18bl2f18bl2f-1.png',emoji:'🧻'},
+  {id:40,cat:'bumaga',name:'Bumaga big Rulon 226 (2ta)',price:15500,img:'https://i.ibb.co/tpbGNnFM/Gemini-Generated-Image-k8r7bbk8r7bbk8r7-1.png',emoji:'🧻'},
+  {id:41,cat:'bumaga',name:'RULON ECO',price:16000,img:'https://i.ibb.co/xKxgnbWd/Gemini-Generated-Image-4zslu34zslu34zsl-1.png',emoji:'♻️'},
+  {id:42,cat:'bumaga',name:'Nam salfetka 120 ta',price:8000,img:'https://i.ibb.co/yFT9sdjK/Gemini-Generated-Image-ecwniuecwniuecwn-1.png',emoji:'💧'},
+  {id:43,cat:'bumaga',name:'Nam salfetka 100 ta',price:6000,img:'https://i.ibb.co/JFc8CNrT/Gemini-Generated-Image-ekiks8ekiks8ekik-1.png',emoji:'💧'},
+  {id:44,cat:'bumaga',name:'Nam salfetka 25 ta',price:15000,img:'https://i.ibb.co/8DjbkhDJ/Gemini-Generated-Image-yqq6wayqq6wayqq6-1.png',emoji:'💧'},
+  {id:45,cat:'bumaga',name:'Musur paket 10L qimmat',price:25000,img:'https://i.ibb.co/PzmXZ096/Gemini-Generated-Image-sppkbbsppkbbsppk-2.png',emoji:'🗑'},
+  {id:46,cat:'bumaga',name:'Musur paket 10L arzon',price:10000,img:'https://i.ibb.co/PzmXZ096/Gemini-Generated-Image-sppkbbsppkbbsppk-2.png',emoji:'🗑'},
+  {id:47,cat:'bumaga',name:'Musur paket bak (qimmat)',price:25000,img:'https://i.ibb.co/nsCtZRfX/Gemini-Generated-Image-69470w69470w6947-1.png',emoji:'🗑'},
+  {id:48,cat:'bumaga',name:'Musur paket bak (arzon)',price:9500,img:'https://i.ibb.co/nsCtZRfX/Gemini-Generated-Image-69470w69470w6947-1.png',emoji:'🗑'},
+  {id:49,cat:'qolqop',name:'Perchatka Nitril XL',price:45000,img:'https://i.ibb.co/jPR3zssv/Gemini-Generated-Image-dtjhjzdtjhjzdtjh-1.png',emoji:'🧤'},
+  {id:50,cat:'qolqop',name:'Perchatka Nitril L',price:45000,img:'https://i.ibb.co/3yV9Vm2f/Gemini-Generated-Image-48ubbh48ubbh48ub-1.png',emoji:'🧤'},
+  {id:51,cat:'qolqop',name:'Perchatka Nitril M',price:45000,img:'https://i.ibb.co/Ps28vG5z/Gemini-Generated-Image-kk05twkk05twkk05-1.png',emoji:'🧤'},
+  {id:52,cat:'kimyo',name:'Poma lux',price:12000,img:'https://i.ibb.co/Y7bJPQgz/photo-3-2026-05-11-13-39-41.jpg',emoji:'🧴'},
+  {id:53,cat:'kimyo',name:'Barf',price:10000,img:'https://i.ibb.co/0yMHBQj4/photo-2-2026-05-11-13-39-41.jpg',emoji:'🧴'},
+  {id:54,cat:'kimyo',name:'Rashka',price:10000,img:'https://i.ibb.co/20XyLTxQ/photo-1-2026-05-11-13-39-41.jpg',emoji:'🧴'},
+  {id:55,cat:'latta',name:'Diflin latta',price:10000,img:'https://i.ibb.co/Dfdmfkzn/0f17dad757ecb06573d55bf054ce22712024051010431435350-Incdaxt-U13-jpg.webp',emoji:'🧹'},
+  {id:56,cat:'latta',name:'Niso polatta',price:25000,img:'https://i.ibb.co/tMY44gMP/184.webp',emoji:'🧹'},
+  {id:57,cat:'kimyo',name:'Idish gubka',price:10000,img:'https://i.ibb.co/cK7sr1qQ/image.webp',emoji:'🫧'},
+  {id:58,cat:'kimyo',name:'Verita rangli qozon sochiq',price:10000,img:'https://i.ibb.co/6zkRzWk/72728fcd-b4b5-42a8-a772-b88d80c97fb3-jpg-500x500-q85-crop-scale.jpg',emoji:'🧽'},
+  {id:59,cat:'kimyo',name:'Tarakan dori maz',price:20000,img:'https://i.ibb.co/21r5ZX38/photo-3-2026-05-11-15-55-42.jpg',emoji:'🐛'},
+  {id:60,cat:'kimyo',name:'Tarakan dori kukun',price:25000,img:'https://i.ibb.co/whb1986P/photo-2-2026-05-11-15-55-42.jpg',emoji:'🐛'},
+  {id:61,cat:'kimyo',name:'Tarakan dori spray',price:65000,img:'https://i.ibb.co/HTJ7NBkq/photo-1-2026-05-11-15-55-42.jpg',emoji:'💨'},
+  {id:62,cat:'kimyo',name:"Suyuq so'vin o'rmon mevali",price:96000,img:'https://i.ibb.co/wNszfdmx/photo-4-2026-05-11-13-37-22.jpg',emoji:'🫧'},
+  {id:63,cat:'kimyo',name:"Suyuq so'vin aloy",price:96000,img:'https://i.ibb.co/d4LhqYLY/photo-2-2026-05-11-13-37-22.jpg',emoji:'🫧'},
+  {id:64,cat:'kimyo',name:"Suyuq so'vin asal",price:96000,img:'https://i.ibb.co/fGVj8L28/photo-1-2026-05-11-13-37-22.jpg',emoji:'🍯'},
+];
+
+let cart={},currentCat='all',searchQuery='';
+let orderNum = Math.floor(Math.random()*900)+100;
+
+function fmt(n){return n.toLocaleString('uz-UZ').replace(/,/g,' ')+" so'm"}
+
+function renderGrid(){
+  const wrap=document.getElementById('gridWrap');
+  let filtered=products.filter(p=>{
+    const matchCat=currentCat==='all'||p.cat===currentCat;
+    const matchSearch=p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchCat&&matchSearch;
+  });
+  if(filtered.length===0){wrap.innerHTML=`<div style="text-align:center;padding:50px;color:var(--gray)"><div style="font-size:48px">🔍</div><p style="margin-top:12px">Mahsulot topilmadi</p></div>`;return}
+  wrap.innerHTML=`<div class="grid">${filtered.map(p=>cardHTML(p)).join('')}</div>`;
+}
+
+function cardHTML(p){
+  const inCart=cart[p.id]||0;
+  const sel=inCart>0?'selected':'';
+  return `<div class="card ${sel}" id="card-${p.id}"><div class="card-top-accent"></div><img class="card-img loading" loading="lazy" onload="this.classList.remove('loading')" src="${p.img}" alt="${p.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="card-emoji" style="display:none">${p.emoji}</span><div class="card-name">${p.name}</div><div class="card-price">${(p.price/1000).toFixed(1)}K <small>so'm</small></div><div class="qty-row"><button class="qty-btn qty-minus" onclick="changeQty(${p.id},-1)">−</button><input class="qty-val" id="qty-${p.id}" type="number" min="0" value="${inCart}" onchange="setQty(${p.id},this.value)" onclick="this.select()"><button class="qty-btn qty-plus" onclick="changeQty(${p.id},1)">+</button></div><button class="add-btn ${inCart>0?'added':''}" onclick="addToCart(${p.id})" id="abtn-${p.id}">${inCart>0?"✅ Korzinkada":"🛒 Qo'shish"}</button></div>`;
+}
+
+function changeQty(id,delta){const current=cart[id]||0;const newVal=Math.max(0,current+delta);if(newVal===0)delete cart[id];else cart[id]=newVal;updateCardUI(id);updateCartUI()}
+function setQty(id,val){const n=parseInt(val)||0;if(n<=0)delete cart[id];else cart[id]=n;updateCardUI(id);updateCartUI()}
+function addToCart(id){if(!cart[id])cart[id]=1;updateCardUI(id);updateCartUI();showToast("✅ Korzinkaga qo'shildi!")}
+
+function updateCardUI(id){
+  const qty=cart[id]||0;
+  const qtyEl=document.getElementById(`qty-${id}`);
+  const btnEl=document.getElementById(`abtn-${id}`);
+  const card=document.getElementById(`card-${id}`);
+  if(qtyEl)qtyEl.value=qty;
+  if(btnEl){btnEl.textContent=qty>0?"✅ Korzinkada":"🛒 Qo'shish";btnEl.className='add-btn '+(qty>0?'added':'')}
+  if(card)card.classList.toggle('selected',qty>0);
+}
+
+function updateCartUI(){
+  const items=cartItems();
+  const count=items.reduce((s,i)=>s+i.qty,0);
+  const total=items.reduce((s,i)=>s+i.subtotal,0);
+  document.getElementById('cartBadge').textContent=count;
+  document.getElementById('cartTotal').textContent=fmt(total);
+  document.getElementById('topTotal').textContent=count>0?fmt(total):"0 so'm";
+  renderCartItems(items);
+}
+
+function cartItems(){return Object.entries(cart).map(([id,qty])=>{const p=products.find(x=>x.id===+id);return{...p,qty,subtotal:p.price*qty}})}
+
+function renderCartItems(items){
+  const el=document.getElementById('cartItems');
+  if(items.length===0){el.innerHTML=`<div class="cart-empty"><div class="big">🛒</div>Korzinka bo'sh</div>`;return}
+  el.innerHTML=items.map(item=>`<div class="cart-item"><img src="${item.img}" alt="${item.name}" style="width:36px;height:36px;object-fit:contain;border-radius:6px;background:#131E29;flex-shrink:0" onerror="this.style.display='none'"><div class="ci-info"><div class="ci-name">${item.name}</div><div class="ci-price-row"><div class="ci-qty-wrap"><button class="ci-qbtn minus" onclick="changeQty(${item.id},-1)">−</button><span class="ci-qty">${item.qty}</span><button class="ci-qbtn plus" onclick="changeQty(${item.id},1)">+</button></div><span style="font-size:11px;color:var(--gray);margin-left:4px">× ${(item.price/1000).toFixed(1)}K</span></div></div><div style="text-align:right"><div class="ci-subtotal">${fmt(item.subtotal)}</div></div><button class="ci-del" onclick="removeItem(${item.id})">✕</button></div>`).join('');
+}
+
+function removeItem(id){delete cart[id];updateCardUI(id);updateCartUI()}
+
+function clearCart(){
+  if(!confirm('Korzinkani tozalaysizmi?'))return;
+  Object.keys(cart).forEach(id=>{delete cart[id];updateCardUI(+id)});
+  cart={};updateCartUI();
+}
+
+function openCart(){document.getElementById('cartOverlay').classList.add('open')}
+function closeCart(){document.getElementById('cartOverlay').classList.remove('open')}
+function closeCartOnBg(e){if(e.target.id==='cartOverlay')closeCart()}
+
+async function sendToTelegram(){
+  const items=cartItems();
+  if(items.length===0){showToast("Korzinka bo'sh!");return}
+
+  const mijoz=document.getElementById('mijozName').value.trim()||"Noma'lum";
+  const phone=document.getElementById('mijozPhone').value.trim()||"Ko'rsatilmagan";
+  const address=document.getElementById('mijozAddress').value.trim()||"Ko'rsatilmagan";
+  const total=items.reduce((s,i)=>s+i.subtotal,0);
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('uz-UZ')+' '+now.toLocaleTimeString('uz-UZ',{hour:'2-digit',minute:'2-digit'});
+
+  let msg = `🛒 *YANGI ZAKAZ #${orderNum}*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━\n`;
+  msg += `👤 *Mijoz:* ${mijoz}\n`;
+  msg += `📞 *Telefon:* ${phone}\n`;
+  msg += `📍 *Manzil:* ${address}\n`;
+  msg += `🕐 *Vaqt:* ${dateStr}\n`;
+  msg += `━━━━━━━━━━━━━━━━━━\n`;
+  msg += `📦 *Mahsulotlar:*\n\n`;
+
+  items.forEach((item,i)=>{
+    msg += `${i+1}. ${item.emoji} ${item.name}\n`;
+    msg += `   ${item.qty} ta × ${(item.price/1000).toFixed(1)}K = *${fmt(item.subtotal)}*\n\n`;
+  });
+
+  msg += `━━━━━━━━━━━━━━━━━━\n`;
+  msg += `💰 *JAMI: ${fmt(total)}*\n`;
+  msg += `━━━━━━━━━━━━━━━━━━\n`;
+  msg += `🏪 Nafis Clean`;
+
+  const btn=document.getElementById('sendBtn');
+  btn.disabled=true;
+  document.getElementById('sendingOverlay').classList.add('open');
+  closeCart();
+
+  try {
+    const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        chat_id: CHAT_ID,
+        text: msg,
+        parse_mode: 'Markdown'
+      })
+    });
+    const data = await res.json();
+    document.getElementById('sendingOverlay').classList.remove('open');
+
+    if(data.ok){
+      document.getElementById('successMsg').textContent=`#${orderNum} raqamli buyurtma Telegramga yuborildi! 🎉`;
+      document.getElementById('successOverlay').classList.add('open');
+      orderNum++;
+    } else {
+      showToast('❌ Xatolik: '+( data.description||'Yuborilmadi'));
+      btn.disabled=false;
+      openCart();
+    }
+  } catch(e){
+    document.getElementById('sendingOverlay').classList.remove('open');
+    showToast('❌ Internet xatoligi!');
+    btn.disabled=false;
+    openCart();
+  }
+}
+
+function afterSuccess(){
+  document.getElementById('successOverlay').classList.remove('open');
+  Object.keys(cart).forEach(id=>{delete cart[id];updateCardUI(+id)});
+  cart={};
+  updateCartUI();
+  document.getElementById('mijozName').value='';
+  document.getElementById('mijozPhone').value='';
+  document.getElementById('mijozAddress').value='';
+  document.getElementById('sendBtn').disabled=false;
+}
+
+function filterCat(cat,el){currentCat=cat;document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));el.classList.add('active');renderGrid()}
+function searchProducts(q){searchQuery=q;renderGrid()}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+renderGrid();updateCartUI();
+
+// ===== ADMIN PANEL =====
+const ADMIN_PASS = 'nafis2024';
+let adminLoggedIn = false;
+let editingId = null;
+let localProducts = JSON.parse(localStorage.getItem('nafis_products')||'null');
+if(localProducts && localProducts.length > 0){
+  products.splice(0,products.length,...localProducts);
+  renderGrid();
+}
+
+function saveProducts(){localStorage.setItem('nafis_products',JSON.stringify(products))}
+function openAdmin(){document.getElementById('adminOverlay').classList.add('open')}
+function closeAdmin(){document.getElementById('adminOverlay').classList.remove('open')}
+
+function adminLogin(){
+  const pass=document.getElementById('adminPass').value;
+  if(pass===ADMIN_PASS){
+    adminLoggedIn=true;
+    document.getElementById('adminLoginSection').style.display='none';
+    document.getElementById('adminBodySection').style.display='flex';
+    renderAdminList();
+  } else {
+    document.getElementById('adminPassErr').textContent='Parol noto\'g\'ri!';
+  }
+}
+
+function renderAdminList(){
+  const el=document.getElementById('adminList');
+  el.innerHTML=products.map(p=>`
+    <div class="admin-product">
+      <img src="${p.img}" alt="${p.name}" loading="lazy" onerror="this.src=''">
+      <div class="admin-product-info">
+        <div class="admin-product-name">${p.name}</div>
+        <div class="admin-product-price">${(p.price/1000).toFixed(1)}K so'm</div>
+      </div>
+      <button class="admin-edit-btn" onclick="openEditForm(${p.id})">✏️</button>
+      <button class="admin-del-btn" onclick="deleteProduct(${p.id})">🗑</button>
+    </div>
+  `).join('');
+}
+
+function openEditForm(id){
+  editingId=id;
+  const p=products.find(x=>x.id===id);
+  document.getElementById('formTitle').textContent='Mahsulot tahrirlash';
+  document.getElementById('fName').value=p.name;
+  document.getElementById('fPrice').value=p.price;
+  document.getElementById('fImg').value=p.img;
+  document.getElementById('fCat').value=p.cat;
+  document.getElementById('fEmoji').value=p.emoji;
+  document.getElementById('fImgPreview').src=p.img;
+  document.getElementById('adminFormOverlay').classList.add('open');
+}
+
+function openAddForm(){
+  editingId=null;
+  document.getElementById('formTitle').textContent='Yangi mahsulot';
+  document.getElementById('fName').value='';
+  document.getElementById('fPrice').value='';
+  document.getElementById('fImg').value='';
+  document.getElementById('fCat').value='kimyo';
+  document.getElementById('fEmoji').value='🧴';
+  document.getElementById('fImgPreview').src='';
+  document.getElementById('adminFormOverlay').classList.add('open');
+}
+
+function closeForm(){document.getElementById('adminFormOverlay').classList.remove('open')}
+
+function previewImg(){
+  const url=document.getElementById('fImg').value;
+  document.getElementById('fImgPreview').src=url;
+}
+
+function saveForm(){
+  const name=document.getElementById('fName').value.trim();
+  const price=parseInt(document.getElementById('fPrice').value);
+  const img=document.getElementById('fImg').value.trim();
+  const cat=document.getElementById('fCat').value;
+  const emoji=document.getElementById('fEmoji').value.trim()||'📦';
+  if(!name||!price){alert('Nom va narx kiritilishi shart!');return}
+  if(editingId){
+    const idx=products.findIndex(x=>x.id===editingId);
+    products[idx]={...products[idx],name,price,img,cat,emoji};
+  } else {
+    const newId=Math.max(...products.map(x=>x.id))+1;
+    products.push({id:newId,cat,name,price,img,emoji});
+  }
+  saveProducts();
+  renderGrid();
+  renderAdminList();
+  closeForm();
+}
+
+function deleteProduct(id){
+  if(!confirm('Mahsulotni o\'chirasizmi?'))return;
+  const idx=products.findIndex(x=>x.id===id);
+  products.splice(idx,1);
+  if(cart[id]){delete cart[id];updateCartUI();}
+  saveProducts();
+  renderGrid();
+  renderAdminList();
+}
+
+</script>
+
+<!-- ADMIN BTN -->
+<button class="admin-btn" onclick="openAdmin()" title="Admin panel">⚙️</button>
+
+<!-- ADMIN OVERLAY -->
+<div class="admin-overlay" id="adminOverlay" onclick="if(event.target.id==='adminOverlay')closeAdmin()">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>⚙️ Admin Panel</h2>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+    <div id="adminLoginSection" class="admin-login">
+      <div style="font-size:13px;color:var(--gray)">Parolni kiriting</div>
+      <input type="password" id="adminPass" placeholder="Parol..." onkeydown="if(event.key==='Enter')adminLogin()">
+      <div id="adminPassErr" style="color:var(--red);font-size:12px;font-weight:700"></div>
+      <button class="admin-login-btn" onclick="adminLogin()">🔐 Kirish</button>
+    </div>
+    <div id="adminBodySection" class="admin-body" style="display:none">
+      <button class="admin-add-btn" onclick="openAddForm()">➕ Yangi mahsulot qo'shish</button>
+      <div id="adminList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT/ADD FORM -->
+<div class="admin-form-overlay" id="adminFormOverlay">
+  <div class="admin-form">
+    <h3 id="formTitle">Tahrirlash</h3>
+    <div class="admin-form-label">Mahsulot nomi</div>
+    <input type="text" id="fName" placeholder="Masalan: Domestos 1L">
+    <div class="admin-form-label">Narx (so'm)</div>
+    <input type="number" id="fPrice" placeholder="Masalan: 26000">
+    <div class="admin-form-label">Rasm link (ibb.co)</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <input type="text" id="fImg" placeholder="https://i.ibb.co/..." oninput="previewImg()" style="flex:1">
+      <img id="fImgPreview" class="admin-img-preview" src="" onerror="this.src=''">
+    </div>
+    <div class="admin-form-label">Kategoriya</div>
+    <select id="fCat">
+      <option value="kimyo">🧴 Kimyoviy</option>
+      <option value="latta">🧹 Pol Latta</option>
+      <option value="bumaga">🧻 Bumaga</option>
+      <option value="xushbo">🌸 Xushboy</option>
+      <option value="qolqop">🧤 Qolqop</option>
+    </select>
+    <div class="admin-form-label">Emoji</div>
+    <input type="text" id="fEmoji" placeholder="🧴" maxlength="4">
+    <div class="admin-form-btns">
+      <button class="admin-cancel-btn" onclick="closeForm()">Bekor</button>
+      <button class="admin-save-btn" onclick="saveForm()">💾 Saqlash</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
