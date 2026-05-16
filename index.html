@@ -178,6 +178,44 @@ footer{background:var(--black);padding:48px 5% 24px}
 /* ANIMATIONS */
 .fade-up{opacity:0;transform:translateY(30px);transition:opacity .6s ease,transform .6s ease}
 .fade-up.visible{opacity:1;transform:none}
+
+/* ABOUT */
+.about{padding:80px 5%;background:white}
+.about-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
+.about-img{background:var(--off-white);border-radius:24px;padding:48px;text-align:center;font-size:80px}
+.about-content h2{font-family:'Playfair Display',serif;font-size:36px;font-weight:700;color:var(--black);margin-bottom:16px;letter-spacing:-0.5px;line-height:1.2}
+.about-content p{font-size:15px;color:var(--gray);line-height:1.8;margin-bottom:16px}
+.about-list{list-style:none;display:flex;flex-direction:column;gap:10px;margin-top:20px}
+.about-list li{display:flex;align-items:center;gap:10px;font-size:15px;color:var(--dark);font-weight:500}
+.about-list li::before{content:'✅';font-size:16px}
+
+/* REVIEWS */
+.reviews{padding:80px 5%;background:var(--off-white)}
+.reviews-inner{max-width:1200px;margin:0 auto}
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px}
+.review-card{background:white;border-radius:20px;padding:28px;border:1px solid var(--light-gray);transition:.25s}
+.review-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,0.08)}
+.review-stars{color:#F59E0B;font-size:18px;margin-bottom:12px}
+.review-text{font-size:15px;color:var(--gray);line-height:1.7;margin-bottom:16px;font-style:italic}
+.review-author{display:flex;align-items:center;gap:12px}
+.review-avatar{width:44px;height:44px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.review-name{font-size:15px;font-weight:700;color:var(--dark)}
+.review-role{font-size:12px;color:var(--gray)}
+
+/* FAQ */
+.faq{padding:80px 5%;background:white}
+.faq-inner{max-width:800px;margin:0 auto}
+.faq-list{display:flex;flex-direction:column;gap:12px}
+.faq-item{background:var(--off-white);border-radius:14px;overflow:hidden;border:2px solid transparent;transition:.2s}
+.faq-item.open{border-color:var(--accent)}
+.faq-q{padding:20px 24px;font-size:15px;font-weight:700;color:var(--dark);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.faq-icon{font-size:20px;transition:.3s;flex-shrink:0;color:var(--accent)}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{padding:0 24px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s ease;font-size:14px;color:var(--gray);line-height:1.7}
+.faq-item.open .faq-a{max-height:300px;padding:0 24px 20px}
+
+@media(max-width:768px){.about-inner{grid-template-columns:1fr}.about-img{display:none}}
+
 </style>
 </head>
 <body>
@@ -321,6 +359,115 @@ footer{background:var(--black);padding:48px 5% 24px}
 </section>
 
 <!-- CTA -->
+
+<!-- BIZ HAQIMIZDA -->
+<section class="about" id="haqimizda">
+  <div class="about-inner">
+    <div class="about-img fade-up">🧹✨🧴</div>
+    <div class="about-content">
+      <div class="section-label fade-up">Biz haqimizda</div>
+      <h2 class="fade-up">Nafis Clean — 3 yillik tajriba</h2>
+      <p class="fade-up">Nafis Clean 2022-yildan beri Toshkentda faoliyat yuritib kelmoqda. Biz korporativ va yakka tartibdagi mijozlarga eng sifatli tozalash mahsulotlarini yetkazib beramiz.</p>
+      <p class="fade-up">Bizning maqsadimiz — har bir mijozga qulay va tez xizmat ko'rsatish. Shu sababli biz doimo omborda yetarli miqdorda mahsulot saqlaymiz.</p>
+      <ul class="about-list fade-up">
+        <li>500 dan ortiq doimiy mijozlar</li>
+        <li>64 dan ortiq mahsulot turi</li>
+        <li>Toshkent bo'ylab tez yetkazib berish</li>
+        <li>Korporativ narxlar va chegirmalar</li>
+        <li>Sifat kafolati va sertifikatlar</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- MIJOZLAR IZOHLARI -->
+<section class="reviews" id="izohlar">
+  <div class="reviews-inner">
+    <div class="section-label fade-up">Mijozlar izohlari</div>
+    <h2 class="section-title fade-up">Mijozlarimiz nima deydi?</h2>
+    <div class="reviews-grid">
+      <div class="review-card fade-up">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">"Nafis Clean bilan 1 yildan beri ishlaymiz. Mahsulotlar sifatli, narxlar qulay, yetkazib berish tez. Juda mamnunmiz!"</div>
+        <div class="review-author">
+          <div class="review-avatar">👩</div>
+          <div>
+            <div class="review-name">Malika Yusupova</div>
+            <div class="review-role">Restoran menejeri</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card fade-up">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">"Ofisimiz uchun har oyda zakaz beramiz. Grass va Domestos mahsulotlari juda sifatli. Tavsiya qilaman!"</div>
+        <div class="review-author">
+          <div class="review-avatar">👨</div>
+          <div>
+            <div class="review-name">Bobur Karimov</div>
+            <div class="review-role">Ofis menejeri</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card fade-up">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">"Mehmonxonamiz uchun barcha tozalash mahsulotlarini Nafis Clean dan olamiz. Narx-sifat nisbati zo'r!"</div>
+        <div class="review-author">
+          <div class="review-avatar">👩</div>
+          <div>
+            <div class="review-name">Dilnoza Rahimova</div>
+            <div class="review-role">Mehmonxona direktori</div>
+          </div>
+        </div>
+      </div>
+      <div class="review-card fade-up">
+        <div class="review-stars">⭐⭐⭐⭐⭐</div>
+        <div class="review-text">"Supermarket uchun buyurtma beramiz. Doim o'z vaqtida yetkazib berishadi. Ishonchli hamkor!"</div>
+        <div class="review-author">
+          <div class="review-avatar">👨</div>
+          <div>
+            <div class="review-name">Jasur Toshmatov</div>
+            <div class="review-role">Supermarket egasi</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="section-label fade-up" style="text-align:center">FAQ</div>
+    <h2 class="section-title fade-up" style="text-align:center">Ko'p so'raladigan savollar</h2>
+    <div class="faq-list">
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Minimal zakaz miqdori qancha? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Minimal zakaz miqdori yo'q — 1 ta mahsulotdan ham zakaz berish mumkin. Katta miqdorda zakaz berganlar uchun maxsus chegirmalar mavjud.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Yetkazib berish qancha vaqt oladi? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Toshkent ichida odatda 1-2 soat ichida yetkazib beramiz. Ba'zi hollarda kun oxirigacha yetkazib berilishi mumkin.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Yetkazib berish pullikmi? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Ma'lum miqdordan yuqori zakazlarda yetkazib berish bepul. Batafsil ma'lumot uchun bizga murojaat qiling.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">To'lov qanday amalga oshiriladi? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Naqd pul, plastik karta yoki bank o'tkazmasi orqali to'lash mumkin. Korporativ mijozlar uchun oylik hisob-kitob ham mavjud.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Mahsulotlar sifatli va sertifikatlangan ekanligini qanday bilaman? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Barcha mahsulotlarimiz O'zbekiston standartlariga mos keladi va sertifikatga ega. Sertifikatlarni so'ragan mijozlarga ko'rsatishga tayyormiz.</div>
+      </div>
+      <div class="faq-item fade-up">
+        <div class="faq-q" onclick="toggleFaq(this)">Korporativ shartnoma tuzish mumkinmi? <span class="faq-icon">+</span></div>
+        <div class="faq-a">Ha, albatta! Korporativ mijozlar uchun maxsus narxlar va oylik yetkazib berish shartnomalari tuzamiz. Bog'laning!</div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="cta-section">
   <div class="cta-inner">
     <h2 class="fade-up">Hoziroq zakaz bering!</h2>
@@ -450,6 +597,14 @@ function sendContact(){
     document.querySelectorAll('.form-input').forEach(i=>i.value='');
   }).catch(()=>alert('❌ Xatolik! Telegram orqali yozing.'));
 }
+
+function toggleFaq(el){
+  const item = el.parentElement;
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+  if(!isOpen) item.classList.add('open');
+}
+
 </script>
 </body>
 </html>
